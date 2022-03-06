@@ -112,11 +112,11 @@ public class FallingShape : MonoBehaviour
         if (!gameObject.activeSelf)
             gameObject.SetActive(true);
 
-        if (ShapeGenerator.Instance.Gravity >= 0)
+        if (ShapeGenerator.Instance.GravityBase >= 0)
             transform.localPosition = Camera.main.ViewportToWorldPoint(RandomPositionTop);
         else 
             transform.localPosition = Camera.main.ViewportToWorldPoint(RandomPositionBottom);
-            
+
         SetMaterialColor();
     }
     public void ResetAtPosition(Vector3 newPosition)
@@ -132,7 +132,7 @@ public class FallingShape : MonoBehaviour
         if (attachedRigidbody == null)
             attachedRigidbody = GetComponent<Rigidbody2D>();
         // attachedRigidbody.gravityScale = newGravity;
-        attachedRigidbody.gravityScale = ShapeGenerator.Instance.Gravity;
+        attachedRigidbody.gravityScale = ShapeGenerator.Instance.GravityWithOffset;
     }
 
     public void Hide() {

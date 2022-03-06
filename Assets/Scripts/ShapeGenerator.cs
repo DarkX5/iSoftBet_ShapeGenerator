@@ -15,6 +15,7 @@ public class ShapeGenerator : MonoBehaviour
     [SerializeField] private int shapesNoPerSecond = 1;
     [SerializeField] private int maxShapeInstances = 250;
     [SerializeField] private int gravity = 1;
+    // used to slow down gravity effects so there a smaller difference between different values
     [SerializeField] [Range(0.001f, 1f)] private float gravityOffset = 0.2f;
     private List<FallingShape> spawnedShapes = new List<FallingShape>();
     private List<Rigidbody2D> spawnedShapeRigidbodies = new List<Rigidbody2D>();
@@ -37,7 +38,8 @@ public class ShapeGenerator : MonoBehaviour
         }
     }
 
-    public int Gravity { get { return gravity; } }
+    public int GravityBase { get { return gravity; } }
+    public float GravityWithOffset { get { return gravity * gravityOffset; } }
     public int ShapesNoPerSecond { get { return shapesNoPerSecond; } }
     public int NoOfCurrentShapes { get { return noOfCurrentShapes; } }
     public float SurfaceAreaOccupiedByShapes { get { return surfaceAreaOccupiedByShapes; } }

@@ -37,7 +37,7 @@ public class MenuActions : MonoBehaviour
         UpdateSurfaceAreaOccupiedByShapesText();
         UpdateHitsText();
         text_ShapesPerSecond.text = ShapeGenerator.Instance.ShapesNoPerSecond.ToString();
-        text_Gravity.text = ShapeGenerator.Instance.Gravity.ToString();
+        text_Gravity.text = ShapeGenerator.Instance.GravityBase.ToString();
         
         Timing.RunCoroutine(UpdateUICo());
     }
@@ -82,7 +82,7 @@ public class MenuActions : MonoBehaviour
             onGravityIncreaseAction();
         }
         // ShapeGenerator.Instance.GravityIncrease();
-        text_Gravity.text = ShapeGenerator.Instance.Gravity.ToString();
+        text_Gravity.text = ShapeGenerator.Instance.GravityBase.ToString();
 
     }
     public void GravityDecrease() {
@@ -91,7 +91,7 @@ public class MenuActions : MonoBehaviour
             onGravityDecreaseAction();
         }
         // ShapeGenerator.Instance.GravityDecrease();
-        text_Gravity.text = ShapeGenerator.Instance.Gravity.ToString();
+        text_Gravity.text = ShapeGenerator.Instance.GravityBase.ToString();
     }
 #endregion
 }
