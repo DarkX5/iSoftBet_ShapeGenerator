@@ -7,7 +7,10 @@ public class PlayerControls : MonoBehaviour
 {
     public static PlayerControls Instance { get; private set; }
     [SerializeField] private LayerMask enemyLayer;
+    [SerializeField] private AudioClip hitSound;
     [SerializeField] private int shapesHit = 0;
+
+    private AudioSource audioSource;
 
     public int HitsNo { get { return shapesHit; } }
 
@@ -21,6 +24,14 @@ public class PlayerControls : MonoBehaviour
         {
             Destroy(this);
         }
+    }
+    private void Start() {
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
+            
+        audioSource.clip = hitSound;
     }
     
     // Update is called once per frame
@@ -40,6 +51,7 @@ public class PlayerControls : MonoBehaviour
         
         if (hit.collider != null) {
             hit.collider.transform.GetComponent<FallingShape>()?.Hide();
+            audioSource.Play();
             shapesHit += 1;
         }
         else {

@@ -6,8 +6,9 @@ public class FallingShape : MonoBehaviour
 {
     [SerializeField] private float surfaceAreaSizePixels = 0;
     [SerializeField] private SpriteRenderer[] spriteRenderers = null;
-    private Rigidbody2D attachedRigidbody;
-    Color newMaterialColor;
+    private Rigidbody2D attachedRigidbody = null;
+    private Color newMaterialColor;
+    private AudioSource audioSource = null;
     private Color RandomColor
     {
         get
@@ -47,25 +48,13 @@ public class FallingShape : MonoBehaviour
     //     ShapeGenerator.Instance.activeShapesList -= SetGravity;
     //     ShapeGenerator.Instance.inactiveShapesList += SetGravity;
     // }
-
-    private void OnEnable() {
-        // get new color for init / reset
-        newMaterialColor = RandomColor;
-    }
-
-    private void OnCollisionEnter2D(Collision2D other) {
-        if (other.gameObject.layer != gameObject.layer)
+    private void Awake() {
+        if (audioSource == null)
         {
-            Hide();
+            audioSource = gameObject.AddComponent<AudioSource>() as AudioSource;
+            if (audioSource == null)
+                audioSource = GetComponent<AudioSource>();
         }
-    }
-
-    public void Init() {
-        if (!gameObject.activeSelf)
-            gameObject.SetActive(true);
-        else
-            return;
-
         if (spriteRenderers == null || spriteRenderers.Length == 0)
             spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
 
@@ -74,6 +63,28 @@ public class FallingShape : MonoBehaviour
 
         MenuActions.Instance.onGravityIncreaseAction += SetGravity;
         MenuActions.Instance.onGravityDecreaseAction += SetGravity;
+    }
+    
+    private void OnCollisionEnter2D(Collision2D other) {
+        if (other.gameObject.layer != gameObject.layer)
+        {
+            Hide();
+        }
+    }
+    private void OnEnable()
+    {
+        // get new color for init / reset
+        newMaterialColor = RandomColor;
+
+        audioSource.clip = ShapeGenerator.Instance.RandomCreationClip;
+        audioSource?.Play();
+    }
+
+    public void Init() {
+        if (!gameObject.activeSelf)
+            gameObject.SetActive(true);
+        else
+            return;
 
         SetGravity();
         Reset();
@@ -83,15 +94,6 @@ public class FallingShape : MonoBehaviour
             gameObject.SetActive(true);
         else
             return;
-
-        if (spriteRenderers == null || spriteRenderers.Length == 0)
-            spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
-
-        if (surfaceAreaSizePixels == 0)
-            InitSize();
-
-        MenuActions.Instance.onGravityIncreaseAction += SetGravity;
-        MenuActions.Instance.onGravityDecreaseAction += SetGravity;
 
         SetGravity();
         ResetAtPosition(newPosition);

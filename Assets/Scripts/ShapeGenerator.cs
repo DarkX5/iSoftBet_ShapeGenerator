@@ -9,18 +9,18 @@ public class ShapeGenerator : MonoBehaviour
 {
     public static ShapeGenerator Instance { get; private set; }
     [SerializeField] private GameObject[] spawnableList = null;
+    [SerializeField] private AudioClip[] shapeCreationSounds = null;
     [SerializeField] private float spawnHeight = 5f;
     [SerializeField] private float spawnFrequencySeconds = 1f; //0.1f;
     [SerializeField] private int shapesNoPerSecond = 1;
     [SerializeField] private int maxShapeInstances = 250;
-    [SerializeField] private List<FallingShape> spawnedShapes = null;
-    [SerializeField] private List<Rigidbody2D> spawnedShapeRigidbodies = null;
     [SerializeField] private int gravity = 1;
     [SerializeField] [Range(0.001f, 1f)] private float gravityOffset = 0.2f;
+    private List<FallingShape> spawnedShapes = new List<FallingShape>();
+    private List<Rigidbody2D> spawnedShapeRigidbodies = new List<Rigidbody2D>();
 
     private int noOfCurrentShapes = 0;
     private float surfaceAreaOccupiedByShapes = 0f;
-
     private bool shapeFound;
     private Color newMaterialColor;
     private FallingShape newShape;
@@ -29,6 +29,13 @@ public class ShapeGenerator : MonoBehaviour
 
     // remember last used shape type -> so we don't generate the same shape twice in a row
     private string lastShape;
+    // private AudioSource audioSource = null;
+
+    public AudioClip RandomCreationClip {
+        get {
+            return shapeCreationSounds[UnityEngine.Random.Range(0, shapeCreationSounds.Length)];
+        }
+    }
 
     public int Gravity { get { return gravity; } }
     public int ShapesNoPerSecond { get { return shapesNoPerSecond; } }
@@ -70,6 +77,7 @@ public class ShapeGenerator : MonoBehaviour
             yield return Timing.WaitForSeconds(spawnFrequencySeconds / shapesNoPerSecond);
         }
         else {
+            // avoid error with shape generation when 0
             noOfCurrentShapes = 0;
             foreach(FallingShape shape in spawnedShapes) {
                 if(shape.gameObject.activeSelf == true) {
