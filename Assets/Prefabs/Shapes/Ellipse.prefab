@@ -13,13 +13,13 @@ GameObject:
   - component: {fileID: 7652899609687209681}
   - component: {fileID: 1432444894921069357}
   - component: {fileID: -7512425015630074150}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Ellipse
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4606524284112215995
 Transform:
   m_ObjectHideFlags: 0

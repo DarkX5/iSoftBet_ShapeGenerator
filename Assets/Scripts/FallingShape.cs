@@ -5,7 +5,7 @@ using UnityEngine;
 public class FallingShape : MonoBehaviour
 {
     [SerializeField] private float surfaceAreaSizePixels = 0;
-    private SpriteRenderer[] spriteRenderers = null;
+    [SerializeField] private SpriteRenderer[] spriteRenderers = null;
     private Rigidbody2D attachedRigidbody;
     Color newMaterialColor;
     private Color RandomColor
@@ -26,17 +26,32 @@ public class FallingShape : MonoBehaviour
                                1.5f);
         }
     }
+    private Vector3 RandomScale
+    {
+        get
+        {
+            return new Vector3( Random.Range(0.35f, 2f),
+                                Random.Range(0.35f, 2f),
+                                Random.Range(0.35f, 2f));
+        }
+    }
 
     public float SurfaceAreaSizePixels { get { return surfaceAreaSizePixels; } }
+
     // private void OnEnable() {
-    //     ShapeGenerator.Instance.onGravityChangeAction += Init;
-    //     ShapeGenerator.Instance.inactiveShapesList -= Init;
+    //     ShapeGenerator.Instance.activeShapesList += SetGravity;
+    //     ShapeGenerator.Instance.inactiveShapesList -= SetGravity;
     // }
     // private void OnDisable()
     // {
-    //     ShapeGenerator.Instance.onGravityChangeAction -= Init;
-    //     ShapeGenerator.Instance.inactiveShapesList += Init;
+    //     ShapeGenerator.Instance.activeShapesList -= SetGravity;
+    //     ShapeGenerator.Instance.inactiveShapesList += SetGravity;
     // }
+
+    private void OnEnable() {
+        // get new color for init / reset
+        newMaterialColor = RandomColor;
+    }
 
     private void OnCollisionEnter2D(Collision2D other) {
         if (other.gameObject.layer != gameObject.layer)
@@ -45,80 +60,75 @@ public class FallingShape : MonoBehaviour
         }
     }
 
-    public void Init()
-    {
-        // gameObject.SetActive(true);
-        if (spriteRenderers == null)
+    public void Init() {
+        if (!gameObject.activeSelf)
+            gameObject.SetActive(true);
+        else
+            return;
+
+        if (spriteRenderers == null || spriteRenderers.Length == 0)
             spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
 
-        GetSize();
+        if (surfaceAreaSizePixels == 0)
+            InitSize();
+
+        MenuActions.Instance.onGravityIncreaseAction += SetGravity;
+        MenuActions.Instance.onGravityDecreaseAction += SetGravity;
+
+        SetGravity();
         Reset();
     }
     public void InitAtPosition(Vector3 newPosition) {
-        // gameObject.SetActive(true);
-        if (spriteRenderers == null)
+        if (!gameObject.activeSelf)
+            gameObject.SetActive(true);
+        else
+            return;
+
+        if (spriteRenderers == null || spriteRenderers.Length == 0)
             spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
-        
-        GetSize();
+
+        if (surfaceAreaSizePixels == 0)
+            InitSize();
+
+        MenuActions.Instance.onGravityIncreaseAction += SetGravity;
+        MenuActions.Instance.onGravityDecreaseAction += SetGravity;
+
+        SetGravity();
         ResetAtPosition(newPosition);
     }
 
     public void Reset() {
-        if (gameObject.activeSelf)
-            return;
-        gameObject.SetActive(true);
+        if (!gameObject.activeSelf)
+            gameObject.SetActive(true);
+
         transform.localPosition = Camera.main.ViewportToWorldPoint(RandomPosition);
-        newMaterialColor = RandomColor;
-        foreach (var sRenderer in spriteRenderers)
-        {
-            sRenderer.transform.localRotation = new Quaternion( 0f,
-                                                                0f,
-                                                                Random.Range(-1f, 1f),
-                                                                sRenderer.transform.localRotation.w);
-            // sRenderer.transform.localScale = new Vector3(Random.Range(0.25f, 3f),
-            //                                              Random.Range(0.25f, 3f),
-            //                                              Random.Range(0.25f, 3f));
-            sRenderer.material.color = newMaterialColor;
-        }
+        SetMaterialColor();
     }
     public void ResetAtPosition(Vector3 newPosition)
     {
-        if (gameObject.activeSelf)
-            return;
-        gameObject.SetActive(true);
+        if (!gameObject.activeSelf)
+            gameObject.SetActive(true);
+
         transform.localPosition = Camera.main.ScreenToWorldPoint(newPosition);
-        newMaterialColor = RandomColor;
-        foreach (var sRenderer in spriteRenderers)
-        {
-            sRenderer.transform.localRotation = new Quaternion( 0f,
-                                                                0f,
-                                                                Random.Range(-1f, 1f),
-                                                                sRenderer.transform.localRotation.w);
-            // sRenderer.transform.localScale = new Vector3(Random.Range(0.25f, 3f),
-            //                                              Random.Range(0.25f, 3f),
-            //                                              Random.Range(0.25f, 3f));
-            sRenderer.material.color = newMaterialColor;
-        }
+        SetMaterialColor();
     }
 
-    public void SetGravity(float newGravity) {
+    public void SetGravity() { //float newGravity) {
         if (attachedRigidbody == null)
             attachedRigidbody = GetComponent<Rigidbody2D>();
-        attachedRigidbody.gravityScale = newGravity;
+        // attachedRigidbody.gravityScale = newGravity;
+        attachedRigidbody.gravityScale = ShapeGenerator.Instance.Gravity;
     }
 
     public void Hide() {
         gameObject.SetActive(false);
     }
 
-    private void GetSize() {
-        if (surfaceAreaSizePixels != 0)
-            return;
-
+    private void InitSize() {
         Vector3 bounds = spriteRenderers[0].bounds.center;
         surfaceAreaSizePixels = Mathf.Abs(bounds.x * bounds.y);
-        
-        // //get world space size (this version handles rotating correctly)
+
+        // //get world space size - way 2 much of a performance hit for an exact size (without setting the size manually on this script)...
         // Vector2 sprite_size = GetComponent<SpriteRenderer>().sprite.rect.size;
         // Vector2 local_sprite_size = sprite_size / GetComponent<SpriteRenderer>().sprite.pixelsPerUnit;
         // Vector3 world_size = local_sprite_size;
@@ -134,5 +144,24 @@ public class FallingShape : MonoBehaviour
 
         // surfaceAreaSizePixels = in_pixels.x * in_pixels.y;
         // // Debug.Log(string.Format("World size: {0}, Screen size: {1}, Pixel size: {2}", world_size, screen_size, in_pixels));
+    }
+
+    private void SetMaterialColor()
+    {
+        foreach (var sRenderer in spriteRenderers)
+        {
+            if (Random.Range(0, 101) > 50) {
+                sRenderer.transform.localRotation = new Quaternion( 0f, 0f, Random.Range(-1f, 1f),
+                                                                    sRenderer.transform.localRotation.w);
+
+                // use ununiform  scale to generate a unique shape from the base sprite
+                sRenderer.transform.localScale = RandomScale;
+            } else {
+                sRenderer.transform.localRotation = new Quaternion(0f, 0f, 0f, 1f);
+                // use default object scale
+                sRenderer.transform.localScale = Vector3.one;
+            }
+            sRenderer.material.color = newMaterialColor;
+        }
     }
 }

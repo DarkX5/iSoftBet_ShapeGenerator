@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class PlayerControls : MonoBehaviour
 {
@@ -33,6 +34,8 @@ public class PlayerControls : MonoBehaviour
 
     private void CheckHit()
     {
+        if (EventSystem.current.IsPointerOverGameObject())
+            return;
         RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
         
         if (hit.collider != null) {

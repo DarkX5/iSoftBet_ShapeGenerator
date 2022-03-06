@@ -17,6 +17,9 @@ public class MenuActions : MonoBehaviour
     [SerializeField] private TMP_Text text_Gravity;
     [SerializeField] private TMP_Text text_Hits;
     [SerializeField] [Range(0f, 1f)]private float updateFrequencyInSeconds = 1f;
+    public event Action onGravityIncreaseAction;
+    public event Action onGravityDecreaseAction;
+    // public event Action onUniqueShapesToggleAction;
 
     private void Awake()
     {
@@ -75,12 +78,19 @@ public class MenuActions : MonoBehaviour
 #endregion
 #region [Public] Gravity Controls
     public void GravityIncrease() {
-        ShapeGenerator.Instance.GravityIncrease();
+        if(onGravityIncreaseAction != null) {
+            onGravityIncreaseAction();
+        }
+        // ShapeGenerator.Instance.GravityIncrease();
         text_Gravity.text = ShapeGenerator.Instance.Gravity.ToString();
 
     }
     public void GravityDecrease() {
-        ShapeGenerator.Instance.GravityDecrease();
+        if (onGravityDecreaseAction != null)
+        {
+            onGravityDecreaseAction();
+        }
+        // ShapeGenerator.Instance.GravityDecrease();
         text_Gravity.text = ShapeGenerator.Instance.Gravity.ToString();
     }
 #endregion

@@ -26,7 +26,9 @@ public class ShapeGenerator : MonoBehaviour
     private FallingShape newShape;
     private float screenWidth = 0f;
     private Rigidbody2D rigidBody;
-    private string lastShape; // remember last used shape type
+
+    // remember last used shape type -> so we don't generate the same shape twice in a row
+    private string lastShape;
 
     public int Gravity { get { return gravity; } }
     public int ShapesNoPerSecond { get { return shapesNoPerSecond; } }
@@ -35,9 +37,6 @@ public class ShapeGenerator : MonoBehaviour
 
     // public event Action activeShapesList;
     // public event Action inactiveShapesList;
-
-    // public event Action initShapeAction;
-    // public event Action resetShapeAction;
 
     // private Delegate[] tmpActiveShapes;
 
@@ -52,6 +51,9 @@ public class ShapeGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        MenuActions.Instance.onGravityIncreaseAction += GravityIncrease;
+        MenuActions.Instance.onGravityDecreaseAction += GravityDecrease;
+
         if(spawnedShapes == null || spawnedShapes.Count < 1) {
             foreach(var shape in GetComponentsInChildren<FallingShape>()) {
                 spawnedShapes.Add(shape);
@@ -63,15 +65,27 @@ public class ShapeGenerator : MonoBehaviour
 
     IEnumerator<float> SpawnNewShapesCo()
     {
-        SpawnNewShape();
+        if(shapesNoPerSecond > 0) {
+            SpawnNewShape();
+            yield return Timing.WaitForSeconds(spawnFrequencySeconds / shapesNoPerSecond);
+        }
+        else {
+            noOfCurrentShapes = 0;
+            foreach(FallingShape shape in spawnedShapes) {
+                if(shape.gameObject.activeSelf == true) {
+                    noOfCurrentShapes += 1;
+                }
+            }
+            yield return Timing.WaitForSeconds(0.25f);
+        }
 
-        yield return Timing.WaitForSeconds(spawnFrequencySeconds / shapesNoPerSecond);
         Timing.RunCoroutine(SpawnNewShapesCo());
     }
 
     private void SpawnNewShape()
     {
-        //faster - but prone to errors
+        /* faster - but prone to errors -> tmpInactiveShapes list doesn't update fast enough 
+          -> can be fixed -> usefull ONLY if more performance NEEDED */
         // tmpActiveShapes = activeShapesList?.GetInvocationList();
         // noOfCurrentShapes = tmpActiveShapes != null ? tmpActiveShapes.Length : 0;
         // var tmpInctiveCount = inactiveShapesList?.GetInvocationList().Length ?? 0;
@@ -87,14 +101,10 @@ public class ShapeGenerator : MonoBehaviour
         {
             if (spawnedShapes[i].gameObject.activeSelf == true)
             {
-                spawnedShapes[i].SetGravity(gravity * gravityOffset);
                 noOfCurrentShapes += 1;
                 surfaceAreaOccupiedByShapes += spawnedShapes[i].SurfaceAreaSizePixels;
-            }
-            if (!shapeFound && spawnedShapes[i].name != lastShape) {
-                // spawnedShapes[i].gameObject.SetActive(true);
+            } else if (!shapeFound && spawnedShapes[i].name != lastShape) {
                 spawnedShapes[i].Reset();
-                spawnedShapes[i].SetGravity(gravity * gravityOffset);
                 shapeFound = true;
 
                 lastShape = spawnedShapes[i].name;
@@ -102,9 +112,6 @@ public class ShapeGenerator : MonoBehaviour
                 surfaceAreaOccupiedByShapes += spawnedShapes[i].SurfaceAreaSizePixels;
                 // break;
             }
-            // } else {
-            //     // spawnedShapes[i].SetGravity(gravity * gravityOffset);
-            // }
         }
 
         // no shape available - instantiate new shape
@@ -115,7 +122,6 @@ public class ShapeGenerator : MonoBehaviour
 
             newShape = (Instantiate(spawnableList[UnityEngine.Random.Range(0, spawnableList.Length)], transform)).GetComponent<FallingShape>();
             newShape.Init();
-            newShape.SetGravity(gravity * gravityOffset);
             spawnedShapes.Add(newShape);
         }
     }
@@ -129,18 +135,14 @@ public class ShapeGenerator : MonoBehaviour
             if (spawnedShapes[i].gameObject.activeSelf == false)
             {
                 if (!shapeFound && spawnedShapes[i].name != lastShape) {
-                    // spawnedShapes[i].gameObject.SetActive(true);
                     spawnedShapes[i].ResetAtPosition(newPosition);
-                    spawnedShapes[i].SetGravity(gravity * gravityOffset);
                     shapeFound = true;
 
                     lastShape = spawnedShapes[i].name;
                     noOfCurrentShapes += 1;
                     surfaceAreaOccupiedByShapes += spawnedShapes[i].SurfaceAreaSizePixels;
-                    // break;
                 }
             } else {
-                // spawnedShapes[i].SetGravity(gravity * gravityOffset);
                 noOfCurrentShapes += 1;
                 surfaceAreaOccupiedByShapes += spawnedShapes[i].SurfaceAreaSizePixels;
             }
@@ -150,7 +152,6 @@ public class ShapeGenerator : MonoBehaviour
         {
             newShape = (Instantiate(spawnableList[UnityEngine.Random.Range(0, spawnableList.Length)], transform)).GetComponent<FallingShape>();
             newShape.InitAtPosition(newPosition);
-            newShape.SetGravity(gravity * gravityOffset);
             spawnedShapes.Add(newShape);
         }
     }
@@ -176,6 +177,7 @@ public class ShapeGenerator : MonoBehaviour
         gravity -= 1;
         // SetGravity();
     }
+
     // private void SetGravity()
     // {
     //     if (spawnedShapes == null || spawnedShapes.Count < 1)

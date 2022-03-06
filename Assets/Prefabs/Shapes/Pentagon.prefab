@@ -13,13 +13,13 @@ GameObject:
   - component: {fileID: 7806641788572033254}
   - component: {fileID: -6606695012319462548}
   - component: {fileID: -33716834302087757}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Pentagon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8329840399619561555
 Transform:
   m_ObjectHideFlags: 0

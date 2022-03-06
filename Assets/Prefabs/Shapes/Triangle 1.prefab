@@ -14,12 +14,12 @@ GameObject:
   - component: {fileID: 9130221136625371651}
   - component: {fileID: 9130221136625371649}
   m_Layer: 8
-  m_Name: Triangle
+  m_Name: Triangle 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &9130221136625371661
 Transform:
   m_ObjectHideFlags: 0
@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d82a70f82e880247af08b4231ea2265, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  surfaceAreaSizePixels: 0
 --- !u!212 &9130221136625371650
 SpriteRenderer:
   m_ObjectHideFlags: 0
