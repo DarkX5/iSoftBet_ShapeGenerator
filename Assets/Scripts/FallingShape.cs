@@ -18,12 +18,21 @@ public class FallingShape : MonoBehaviour
                              Random.Range(0f, 1f), 0f);
         }
     }
-    private Vector3 RandomPosition
+    private Vector3 RandomPositionTop
     {
         get
         {
             return new Vector3(Random.Range(0.05f, 0.95f),
                                1.0f,
+                               1.5f);
+        }
+    }
+    private Vector3 RandomPositionBottom
+    {
+        get
+        {
+            return new Vector3(Random.Range(0.05f, 0.95f),
+                               0f,
                                1.5f);
         }
     }
@@ -103,7 +112,11 @@ public class FallingShape : MonoBehaviour
         if (!gameObject.activeSelf)
             gameObject.SetActive(true);
 
-        transform.localPosition = Camera.main.ViewportToWorldPoint(RandomPosition);
+        if (ShapeGenerator.Instance.Gravity >= 0)
+            transform.localPosition = Camera.main.ViewportToWorldPoint(RandomPositionTop);
+        else 
+            transform.localPosition = Camera.main.ViewportToWorldPoint(RandomPositionBottom);
+            
         SetMaterialColor();
     }
     public void ResetAtPosition(Vector3 newPosition)
